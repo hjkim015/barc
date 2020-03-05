@@ -4,6 +4,7 @@ import rospy
 import time
 from barc.msg import ECU
 from labs.msg import Z_DynBkMdl 
+from geometry_msgs.msg import Twist
 
 	
 # initialize state
@@ -14,67 +15,48 @@ v_y = 0
 	
 # ecu command update
 def measurements_callback(data):
- 	global x, y, psi, v_x, v_y, psi_dot
-	x = data.x
-	y = data.y
-	psi = data.psi 
-	v_x = data.v_x 
-	v_y = data.v_y 
-	psi_dot = data.psi_dot
+ 	print(data)
 	 	
 # Insert your PID longitudinal controller here: since you are asked to do longitudinal control,  the steering angle d_f can always be set to zero. Therefore, the control output of your controller is essentially longitudinal acceleration acc.
 # ==========PID longitudinal controller=========#
-class PID():
-	def __init__(self, kp=1, ki=1, kd=1):
-		self.kp = kp
-		self.ki = ki
-		self.kd = kd
-
-
-	
-	def acc_calculate(self, speed_reference, speed_current):
-		v_ref = 8
-		v_change = v_ref - v_x
-	 	acc = self.kp*(v_change) + self.ki(v_change) + self.kd(v_change)
-
-	 	return acc
 	
 # ==========end of the controller==============#
 	
 # controller node
 def controller():
 	# initialize node
-	rospy.init_node('controller', anonymous=True)
+
+	rospy.init_node('relay', anonymous=True)
 	
 	# topic subscriptions / publications
-	rospy.Subscriber('z_vhcl', Z_DynBkMdl, measurements_callback)
+	rospy.Subscriber('cmd_vel', Twist, measurements_callback)
 	state_pub = rospy.Publisher('ecu', ECU, queue_size = 10)
 	
 	# set node rate
-	loop_rate = 50
-	dt = 1.0 / loop_rate
-	rate = rospy.Rate(loop_rate)
-	t0 = time.time()
+	# loop_rate = 50
+	# dt = 1.0 / loop_rate
+	# rate = rospy.Rate(loop_rate)
+	# t0 = time.time()
 	
-	# set initial conditions 
-	d_f = 0
-	acc = 0
+	# # set initial conditions 
+	# d_f = 0
+	# acc = 0
 	
-	# reference speed 
-	v_ref = 8 # reference speed is 8 m/s
+	# # reference speed 
+	# v_ref = 8 # reference speed is 8 m/s
 	
-	# Initialize the PID controller with your tuned gains
-	PID_control = PID(kp=0.5, ki=0.5, kd=0.5)
+	# # Initialize the PID controller with your tuned gains
+	
 	
 	while not rospy.is_shutdown():
 		# acceleration calculated from PID controller.
-	 	acc = PID_control.acc_calculate(v_ref, v_x)
+
 	 
 	 	# steering angle
-	 	d_f = 0.0
+	 	#d_f = 0.0
 	
 		# publish information
-	 	state_pub.publish( ECU(acc, d_f) )
+	 	#state_pub.publish( ECU(acc, d_f) )
 	
 		# wait
 		rate.sleep()

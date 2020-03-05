@@ -47,7 +47,7 @@ def controller():
 	rospy.init_node('controller', anonymous=True)
 	
 	# topic subscriptions / publications
-	rospy.Subscriber('z_vhcl', Z_DynBkMdl, measurements_callback)
+	rospy.Subscriber('cmd_vel', twist, measurements_callback)
 	state_pub = rospy.Publisher('ecu', ECU, queue_size = 10)
 	
 	# set node rate
