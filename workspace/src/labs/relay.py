@@ -10,10 +10,10 @@ from geometry_msgs.msg import Twist
 # ecu command update
 def measurements_callback(data):
 	global relay
-	print(data)
 	d_f = data.angular.z
 	acc = data.linear.x
 	relay.publish( ECU(acc, d_f))
+	print(data)
 	
 # controller node
 def controller():
@@ -23,6 +23,13 @@ def controller():
 	rospy.init_node('relay', anonymous=True)
 	# topic subscriptions / publications
 	rospy.Subscriber('cmd_vel', Twist, measurements_callback)
+	loop_rate = 50
+	rate = rospy.Rate(loop_rate)
+
+	while not rospy.is_shutdown():
+		
+		# wait
+		rate.sleep()
 	
 	
 	
